@@ -1,13 +1,13 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 import { supabase } from '@/utils/supabase';
@@ -333,7 +333,7 @@ export default function CargarPagoScreen() {
           sede_id: sedeId,
           metodo_pago: metodoPago,
           monto_total: totalAplicar,
-          moneda,
+            moneda: metodoPago === 'efectivo_divisa' ? 'USD' : 'BS',
           referencia:
   requiereReferencia
     ? referencia.trim()
@@ -348,16 +348,19 @@ export default function CargarPagoScreen() {
         .single();
 
       if (pagoError) {
-        console.log(
-          'ERROR GUARDANDO PAGO:',
-          pagoError
-        );
+  console.log('========== ERROR GUARDANDO PAGO ==========');
+  console.log('MESSAGE:', pagoError.message);
+  console.log('CODE:', pagoError.code);
+  console.log('DETAILS:', pagoError.details);
+  console.log('HINT:', pagoError.hint);
+  console.log('ERROR COMPLETO:', pagoError);
 
-        alert(
-          'No se pudo registrar el pago.'
-        );
-        return;
-      }
+  alert(
+    `No se pudo registrar el pago.\n\n${pagoError.message}`
+  );
+
+  return;
+}
 
       // 2. Aplicar el pago a las clases
       const aplicaciones =
@@ -368,7 +371,7 @@ export default function CargarPagoScreen() {
               Number(inscripcionId),
             clase_id:
               clase.claseId,
-            tipo_concepto: 'clase',
+            tipo_concepto: 'aporte_clase',
             monto_aplicado:
               clase.pendiente,
             genera_aporte_profesor:
